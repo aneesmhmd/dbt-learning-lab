@@ -11,9 +11,13 @@ dbt deps
 echo "🔍 Debugging connection..."
 dbt debug
 
+echo "🌱 Seeding data..."
+dbt seed
+
 echo "🚀 Running dbt models..."
 dbt run
 
 echo "✅ Done!"
 exec "$@"
+
 
