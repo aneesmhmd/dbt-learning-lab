@@ -1,0 +1,19 @@
+version: 2
+
+sources:
+  - name: google_trends
+    database: bigquery-public-data
+    schema: google_trends
+
+    tables:
+      - name: international_top_rising_terms
+        description: "Rising search terms internationally by region and country"
+
+      - name: international_top_terms
+        description: "Top search terms internationally by region and country"
+
+      - name: top_rising_terms
+        description: "Rising search terms in the US by DMA region"
+
+      - name: top_terms
+        description: "Top search terms in the US by DMA region"
