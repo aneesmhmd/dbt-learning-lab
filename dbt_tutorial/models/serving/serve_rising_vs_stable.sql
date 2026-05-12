@@ -1,8 +1,25 @@
 -- Splits global trends into Rising vs Stable
 -- Useful for trend comparison dashboards
 
+{{
+    config(
+        incremental_strategy='insert_overwrite',
+        unique_key=['term', 'country_code', 'week'],
+        partition_by={
+            "field": "week",
+            "data_type": "date",
+            "granularity": "day"
+        },
+        cluster_by=['country_code', 'trend_type', 'term']
+    )
+}}
+
 WITH base AS (
     SELECT * FROM {{ ref('tfm_global_trends') }}
+
+    {% if is_incremental() %}
+        WHERE week > (SELECT MAX(week) FROM {{ this }})
+    {% endif %}
 ),
 
 classified AS (

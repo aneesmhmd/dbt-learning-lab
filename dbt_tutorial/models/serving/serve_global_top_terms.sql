@@ -1,8 +1,25 @@
 -- Top 10 trending terms per country per week
 -- Ready for global trends dashboard
 
+{{
+    config(
+        incremental_strategy='insert_overwrite',
+        unique_key=['term', 'country_code', 'week'],
+        partition_by={
+            "field": "week",
+            "data_type": "date",
+            "granularity": "day"
+        },
+        cluster_by=['country_code', 'term']
+    )
+}}
+
 WITH base AS (
     SELECT * FROM {{ ref('tfm_global_trends') }}
+
+    {% if is_incremental() %}
+        WHERE week > (SELECT MAX(week) FROM {{ this }})
+    {% endif %}
 )
 
 SELECT

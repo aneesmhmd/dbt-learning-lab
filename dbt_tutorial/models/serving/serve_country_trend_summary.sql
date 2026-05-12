@@ -1,8 +1,25 @@
 -- One row per country per week
 -- High-level summary of trending activity — great for executive dashboards
 
+{{
+    config(
+        incremental_strategy='insert_overwrite',
+        unique_key=['country_code', 'week'],
+        partition_by={
+            "field": "week",
+            "data_type": "date",
+            "granularity": "day"
+        },
+        cluster_by=['country_code', 'country_trend_activity']
+    )
+}}
+
 WITH base AS (
     SELECT * FROM {{ ref('tfm_trending_by_country') }}
+
+    {% if is_incremental() %}
+        WHERE week > (SELECT MAX(week) FROM {{ this }})
+    {% endif %}
 ),
 
 -- Add a label based on avg percent gain

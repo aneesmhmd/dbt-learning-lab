@@ -1,8 +1,25 @@
 -- Top 10 trending terms per US DMA region per week
 -- Ready for US regional trends dashboard
 
+{{
+    config(
+        unique_key=['term', 'dma_id', 'week'],
+        incremental_strategy='insert_overwrite',
+        partition_by={
+            "field": "week",
+            "data_type": "date",
+            "granularity": "day"
+        },
+        cluster_by=['dma_id', 'term', 'trend_momentum']
+    )
+}}
+
 WITH base AS (
     SELECT * FROM {{ ref('tfm_us_trends') }}
+
+    {% if is_incremental()%}
+        WHERE week > (SELECT MAX(week) FROM {{ this }})
+    {% endif %}
 )
 
 SELECT

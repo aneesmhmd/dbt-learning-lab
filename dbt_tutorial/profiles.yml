@@ -5,7 +5,7 @@ dbt_demo:
       type: bigquery
       method: service-account
       project: "{{ env_var('GCP_PROJECT_ID') }}"
-      dataset: "{{ env_var('GCP_PUBLIC_DS') }}"
+      dataset: "{{ env_var('BQ_PUBLIC_DS') }}"
       threads: 2
       keyfile: /tmp/gcp-key.json
     
