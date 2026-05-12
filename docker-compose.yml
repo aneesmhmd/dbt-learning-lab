@@ -1,0 +1,16 @@
+services:
+  dbt:
+    build: .
+    env_file:
+      - .env
+    volumes:
+      - .:/usr/app
+      - ./dbt_tutorial/profiles.yml:/root/.dbt/profiles.yml
+      - ./dbt_tutorial/tmp:/tmp  # where the GCP key will be written
+    environment:
+      - DBT_PROFILES_DIR=/root/.dbt
+      - GCP_KEY_OUTPUT=/tmp/gcp-key.json
+      - GCP_PROJECT_ID=${GCP_PROJECT_ID}
+      - GCP_DATASET=${GCP_DATASET}
+    working_dir: /usr/app/dbt_tutorial
+

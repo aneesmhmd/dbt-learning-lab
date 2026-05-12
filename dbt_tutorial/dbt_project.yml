@@ -19,5 +19,7 @@ models:
   dbt_tutorial:
     staging:
       +materialized: view       # staging models → views in warehouse schema
-    marts:
-      +materialized: table      # mart models → tables in warehouse schema
+    transformation:
+      +materialized: view      # transformation models → views in warehouse schema
+    serving:
+      +materialized: incremental
