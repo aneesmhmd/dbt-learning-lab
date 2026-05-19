@@ -1,0 +1,73 @@
+jobs:
+
+  weekly-google-trends-refresh:
+    account_id: "{{ env_var('DBT_ACCOUNT_ID') }}"
+    project_id: "{{ env_var('DBT_PROJECT_ID') }}"
+    environment_id: "{{ env_var('DBT_ENVIRONMENT_ID_PROD') }}"
+    name: "Weekly Google Trends Refresh"
+    description: "Incremental run every Monday — staging to serving"
+    run_generate_sources: true
+    generate_docs: true
+    schedule:
+      cron: "0 10 * * 1"  # every Monday at 10 AM
+    execute_steps:
+      - "dbt deps"
+      - "dbt source freshness"
+      - "dbt run --select staging"
+      - "dbt run --select transformation"
+      - "dbt run --select serving"
+      # - "dbt test"
+    settings:
+      threads: 4
+      target_name: "dev"
+    triggers:
+      schedule: true
+      github_webhook: false
+      git_provider_webhook: false
+      custom_branch_only: false
+
+  monthly-full-refresh:
+    account_id: "{{ env_var('DBT_ACCOUNT_ID') }}"
+    project_id: "{{ env_var('DBT_PROJECT_ID') }}"
+    environment_id: "{{ env_var('DBT_ENVIRONMENT_ID_PROD') }}"
+    name: "Monthly Full Refresh"
+    description: "Full rebuild of serving layer — 1st of every month"
+    run_generate_sources: false
+    generate_docs: false
+    schedule:
+      cron: "0 6 1 * *" # 1st of every month at 6 AM
+    execute_steps:
+      - "dbt deps"
+      - "dbt run --full-refresh --select serving"
+      # - "dbt test --select serving"
+    settings:
+      threads: 4
+      target_name: "dev"
+    triggers:
+      schedule: true
+      github_webhook: false
+      git_provider_webhook: false
+      custom_branch_only: false
+
+  ci-validation:
+    account_id: "{{ env_var('DBT_ACCOUNT_ID') }}"
+    project_id: "{{ env_var('DBT_PROJECT_ID') }}"
+    environment_id: "{{ env_var('DBT_ENVIRONMENT_ID_DEV') }}"
+    name: "CI Validation"
+    description: "Runs on GitLab MR — validates changed models only"
+    run_generate_sources: false
+    generate_docs: false
+    schedule:
+      cron: null  # no schedule — triggered by MR
+    execute_steps:
+      - "dbt deps"
+      - "dbt run --select state:modified+"
+      - "dbt test --select state:modified+"
+    settings:
+      threads: 2
+      target_name: "dev"
+    triggers:
+      schedule: false
+      github_webhook: false
+      git_provider_webhook: true  # GitLab MR trigger
+      custom_branch_only: true

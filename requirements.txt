@@ -1,2 +1,3 @@
 dbt-core==1.11.8
 dbt-bigquery==1.11.1
+dbt-jobs-as-code==1.18.0

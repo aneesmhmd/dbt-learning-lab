@@ -1,0 +1,52 @@
+stages:
+  - validate
+  - deploy
+
+variables:
+  DBT_PROFILES_DIR: "${CI_PROJECT_DIR}/dbt_tutorial"
+  GCP_KEY_OUTPUT: "/tmp/gcp-key.json"
+
+.dbt-base:
+  image: python:3.11-slim
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq git build-essential
+    - pip install --quiet -r requirements.txt
+    - echo "$GCP_KEY_BASE64" | base64 -d > "$GCP_KEY_OUTPUT"
+
+ci-validate:
+  extends: .dbt-base
+  stage: validate
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  cache:
+    key: prod-manifest
+    paths:
+      - dbt_tutorial/prod-state/
+    policy: pull
+  script:
+    - cd dbt_tutorial
+    - dbt deps
+    - dbt source freshness
+    - |
+      if [ -f prod-state/manifest.json ]; then
+        dbt build --select state:modified+ --state prod-state
+      else
+        dbt build
+      fi
+
+sync-jobs:
+  extends: .dbt-base
+  stage: deploy
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+  cache:
+    key: prod-manifest
+    paths:
+      - dbt_tutorial/prod-state/
+    policy: push
+  script:
+    - pip install --quiet dbt-jobs-as-code
+    - cd dbt_tutorial
+    - dbt deps && dbt parse
+    - mkdir -p prod-state && cp target/manifest.json prod-state/
+    - cd jobs && dbt-jobs-as-code sync jobs.yml --vars-file prod_vars.yml
