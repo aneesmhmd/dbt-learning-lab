@@ -1,0 +1,110 @@
+version: 2
+
+models:
+  - name: tfm_global_trends
+    description: "Joined international top terms with rising terms, enriched with trend momentum and strength classifications"
+    columns:
+      - name: week
+        description: "Week of the search trend data"
+      - name: refresh_date
+        description: "Date when the data was last refreshed"
+      - name: term
+        description: "Search term"
+      - name: country_code
+        description: "ISO country code"
+      - name: country_name
+        description: "Full country name"
+      - name: region_code
+        description: "Region code within the country"
+      - name: region_name
+        description: "Region name within the country"
+      - name: trend_score
+        description: "Relative popularity score of the term"
+      - name: trend_rank
+        description: "Rank of the term within its group"
+      - name: percent_gain
+        description: "Percentage increase in search interest; NULL for stable terms"
+      - name: trend_momentum
+        description: "Momentum label: Breakout, Rising Fast, Rising, Slow Rise, or Stable"
+      - name: trend_strength
+        description: "Strength label based on trend score: High, Medium, or Low"
+      - name: country_week_rank
+        description: "Row number ranking the term within its country for the given week, ordered by trend score descending"
+
+  - name: tfm_trending_by_country
+    description: "Aggregated rising trend metrics per country per week, with the top-ranked term surfaced"
+    columns:
+      - name: week
+        description: "Week of the search trend data"
+      - name: country_code
+        description: "ISO country code"
+      - name: country_name
+        description: "Full country name"
+      - name: unique_terms
+        description: "Count of distinct rising search terms for the country and week"
+      - name: avg_trend_score
+        description: "Average trend score across all terms for the country and week"
+      - name: max_trend_score
+        description: "Highest trend score observed for the country and week"
+      - name: avg_percent_gain
+        description: "Average percent gain across all rising terms for the country and week"
+      - name: max_percent_gain
+        description: "Highest percent gain observed for the country and week"
+      - name: top_term
+        description: "The term ranked #1 by trend score for the country and week"
+      - name: top_term_score
+        description: "Trend score of the top-ranked term"
+      - name: top_term_percent_gain
+        description: "Percent gain of the top-ranked term"
+
+  - name: tfm_trending_by_region
+    description: "International top terms ranked within each region per week, with score relative to country average"
+    columns:
+      - name: week
+        description: "Week of the search trend data"
+      - name: refresh_date
+        description: "Date when the data was last refreshed"
+      - name: country_code
+        description: "ISO country code"
+      - name: country_name
+        description: "Full country name"
+      - name: region_code
+        description: "Region code within the country"
+      - name: region_name
+        description: "Region name within the country"
+      - name: term
+        description: "Search term"
+      - name: trend_score
+        description: "Relative popularity score of the term"
+      - name: trend_rank
+        description: "Original rank from the source data"
+      - name: region_week_rank
+        description: "Row number ranking the term within its region for the given week, ordered by trend score descending"
+      - name: score_vs_country_avg
+        description: "Difference between the term's trend score and the country-week average trend score"
+
+  - name: tfm_us_trends
+    description: "Joined US top terms with US rising terms, enriched with DMA info and trend classifications"
+    columns:
+      - name: week
+        description: "Week of the search trend data"
+      - name: refresh_date
+        description: "Date when the data was last refreshed"
+      - name: term
+        description: "Search term"
+      - name: dma_id
+        description: "Designated Market Area identifier"
+      - name: dma_name
+        description: "Designated Market Area name"
+      - name: trend_score
+        description: "Relative popularity score of the term"
+      - name: trend_rank
+        description: "Original rank from the source data"
+      - name: percent_gain
+        description: "Percentage increase in search interest; NULL for stable terms"
+      - name: trend_momentum
+        description: "Momentum label: Breakout, Rising Fast, Rising, Slow Rise, or Stable"
+      - name: trend_strength
+        description: "Strength label based on trend score: High, Medium, or Low"
+      - name: dma_week_rank
+        description: "Row number ranking the term within its DMA for the given week, ordered by trend score descending"

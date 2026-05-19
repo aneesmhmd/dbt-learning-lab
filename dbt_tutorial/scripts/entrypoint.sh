@@ -14,6 +14,12 @@ dbt debug
 echo "🌱 Seeding data..."
 dbt seed
 
+echo "🔍 Checking source freshness..."
+dbt source freshness
+
+echo "🔍 Building dbt models..."
+dbt build
+
 echo "🚀 Running dbt models..."
 dbt run
 
